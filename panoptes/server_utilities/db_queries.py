@@ -49,9 +49,14 @@ def maintain_jobs(msg, wf_id):
                 msg_json['is_checkpoint'],
 
             )
-            db_session.add(job)
-            db_session.commit()
-            return True
+            # Check to determine if this job has already been submited for this workflow.
+            # If not, lets add it.
+            if not get_db_job_by_id(wf_id, msg_json['jobid']):
+                db_session.add(job)
+                db_session.commit()
+                return True
+            else:
+                return False
 
         if msg_json["level"] == 'job_finished':
             job = WorkflowJobs.query.filter(WorkflowJobs.wf_id == wf_id)\
